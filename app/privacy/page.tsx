@@ -212,7 +212,7 @@ Picly </Link>
     </footer>
   </div>
 </main>
-```
+
 
 );
 }
