@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -41,6 +42,8 @@ function getProfile(
     ? profile[0] ?? null
     : profile;
 }
+
+const supabase = createClient();
 
 function formatTime(dateString: string) {
   const date = new Date(dateString);
@@ -99,8 +102,6 @@ function formatTime(dateString: string) {
 }
 
 export default function ExplorePage() {
-  const supabase = createClient();
-
   const [posts, setPosts] = useState<Post[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -439,12 +440,10 @@ export default function ExplorePage() {
                   );
 
                   const username =
-                    profile?.username ??
-                    "user";
+                    profile?.username ?? "user";
 
                   const displayName =
-                    profile?.display_name ??
-                    username;
+                    profile?.display_name ?? username;
 
                   return (
                     <article
@@ -488,9 +487,7 @@ export default function ExplorePage() {
                           )}
 
                           <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--muted)]">
-                            <span>
-                              {displayName}
-                            </span>
+                            <span>{displayName}</span>
 
                             {post.location && (
                               <>
