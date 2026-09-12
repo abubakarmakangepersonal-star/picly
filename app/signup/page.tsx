@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -23,7 +24,12 @@ export default function SignupPage() {
     setError("");
     setSuccess("");
 
-    if (!name.trim() || !username.trim() || !email.trim() || !password) {
+    if (
+      !name.trim() ||
+      !username.trim() ||
+      !email.trim() ||
+      !password
+    ) {
       setError("Please complete all fields.");
       return;
     }
@@ -42,10 +48,21 @@ export default function SignupPage() {
 
     const supabase = createClient();
 
-    const { data, error: signupError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-    });
+    const normalizedUsername = username.trim().toLowerCase();
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    const { data, error: signupError } =
+      await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+        options: {
+          data: {
+            username: normalizedUsername,
+            display_name: trimmedName,
+          },
+        },
+      });
 
     if (signupError) {
       setError(signupError.message);
@@ -59,16 +76,16 @@ export default function SignupPage() {
       return;
     }
 
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert({
-        id: data.user.id,
-        username: username.trim().toLowerCase(),
-        display_name: name.trim(),
-      });
-
-    if (profileError) {
-      setError(profileError.message);
+    /*
+     * The database trigger creates the profiles row automatically.
+     *
+     * When email confirmation is enabled, Supabase normally does not
+     * create an active session immediately.
+     */
+    if (!data.session) {
+      setSuccess(
+        "Account created. Check your email to confirm your account, then log in.",
+      );
       setLoading(false);
       return;
     }
@@ -212,7 +229,11 @@ export default function SignupPage() {
 
           <div className="my-8 flex items-center gap-4">
             <div className="h-px flex-1 bg-[var(--border)]" />
-            <span className="text-xs text-[var(--muted)]">OR</span>
+
+            <span className="text-xs text-[var(--muted)]">
+              OR
+            </span>
+
             <div className="h-px flex-1 bg-[var(--border)]" />
           </div>
 
